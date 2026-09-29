@@ -75,6 +75,10 @@ var browsersync = function (done) {
 gulp.task('sass-sync', function () {
     return gulp.src(['kit/styles/index.scss', 'kit/styles/index-pages.scss', 'pages/styles/**/*.scss'])
         .pipe(compileSass())
+        // The pages link /<slug>.css and /index-pages.css: without this the compiled CSS kept its .scss name and 404'd
+        .pipe(rename(function (path) {
+            path.extname = '.css';
+        }))
         .pipe(gulp.dest('output'))
         .pipe(browserSync.stream());
 });

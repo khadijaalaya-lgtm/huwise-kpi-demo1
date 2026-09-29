@@ -180,6 +180,12 @@ With no dev kit, or to check one widget in isolation, copy
 that file directly. It loads the widget library from the CDN and queries the
 live portal from a `file://` URL.
 
+Render what the kit itself serves: start `gulp server` from an empty
+`output/` and fetch `/<slug>.css` and `/index-pages.css` (both must return
+`text/css`). Never compile the SCSS by hand for the test; that hides a kit
+that fails to produce or serve the CSS, and the page then shows as unstyled
+HTML on the user's machine.
+
 Wrap values in sentinels (`VALUE:{{ r.name }}:END`) so you can grep them out
 of the dumped DOM.
 
