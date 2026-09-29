@@ -13,7 +13,7 @@ published.
 ```html
 {{ n }}
 {{ n | number }}
-{{ record.fields.current_energy_rating }}
+{{ record.fields.<category_field> }}
 ```
 
 A binding that cannot be resolved renders as an empty string. It does not
@@ -30,7 +30,7 @@ is the *name you are choosing*, not a reference to something existing:
 
 ```html
 <div ods-aggregation="n"
-     ods-aggregation-context="epc"
+     ods-aggregation-context="ctx"
      ods-aggregation-function="COUNT">
     {{ n }}
 </div>
@@ -45,13 +45,13 @@ are prefixed with the context name:
 
 ```html
 <div ods-dataset-context
-     context="epc"
-     epc-dataset="epc_domestic_lep_ods"
-     epc-parameters="{'rows': 10}">
+     context="ctx"
+     ctx-dataset="<dataset_id>"
+     ctx-parameters="{'rows': 10}">
 ```
 
-`context="epc"` names it; every other setting for it starts `epc-`. Declaring
-two contexts means `context="epc,pop"` and then both `epc-` and `pop-`
+`context="ctx"` names it; every other setting for it starts `ctx-`. Declaring
+two contexts means `context="ctx,ref"` and then both `ctx-` and `ref-`
 prefixed attributes.
 
 ## Attribute names are kebab-case
@@ -64,7 +64,7 @@ normalises them internally. In HTML you always write kebab-case:
 | `chartType` | `chart-type="column"` |
 | `expressionY` | `expression-y="price"` |
 | `displayStackValues` | `display-stack-values="true"` |
-| `refineOnClickContext` | `refine-on-click-context="epc"` |
+| `refineOnClickContext` | `refine-on-click-context="ctx"` |
 
 ## Elements versus attributes
 
@@ -73,7 +73,7 @@ single most common way to get a blank page:
 
 ```html
 <!-- odsAggregation is an attribute directive -->
-<div ods-aggregation="n" ods-aggregation-context="epc"
+<div ods-aggregation="n" ods-aggregation-context="ctx"
      ods-aggregation-function="COUNT">{{ n }}</div>
 
 <!-- odsChart is an element directive -->
@@ -89,7 +89,7 @@ Widgets publish collections of their own shape, and the shape is the thing to
 get right. `ods-facet-results` items have `name`, `count` and `path`:
 
 ```html
-<li ng-repeat="r in ratings | orderBy:'-count' | limitTo:5">
+<li ng-repeat="r in items | orderBy:'-count' | limitTo:5">
     {{ r.name }}: {{ r.count | number }}
 </li>
 ```
@@ -99,9 +99,9 @@ Binding `record.address` instead of `record.fields.address` is a common and
 silent mistake:
 
 ```html
-<div ods-results="records" ods-results-context="epc" ods-results-max="10">
+<div ods-results="records" ods-results-context="ctx" ods-results-max="10">
     <p ng-repeat="record in records">
-        {{ record.fields.address }} — {{ record.fields.current_energy_rating }}
+        {{ record.fields.address }} — {{ record.fields.<category_field> }}
     </p>
 </div>
 ```
@@ -113,11 +113,11 @@ inside `ng-show` is still in the DOM, so it still loads and still queries the
 portal API while invisible. Use `ng-if` around anything containing a widget,
 and `ng-show` only for cheap content that toggles often.
 
-A widget's data arrives asynchronously, so on first paint `ratings` is
-undefined and `ratings.length === 0` is false. Guard on the data instead:
+A widget's data arrives asynchronously, so on first paint `items` is
+undefined and `items.length === 0` is false. Guard on the data instead:
 
 ```html
-<p ng-if="ratings && ratings.length === 0">No results.</p>
+<p ng-if="items && items.length === 0">No results.</p>
 ```
 
 ## Conditional classes and styles

@@ -51,7 +51,7 @@ How it behaves, compared with SQL:
 
 - **A lookup, not a relational join.** Multiple matches become one
   multivalued field, not extra rows, so the local dataset keeps its row
-  count and grain. For one-to-one metadata lookups (indicator → unit, GSS
+  count and grain. For one-to-one metadata lookups (indicator → unit, area
   code → name) this is exactly what you want.
 - **Join type is not documented.** The guide describes enriching local
   records when a match exists, which suggests local rows without a match are
@@ -74,7 +74,7 @@ How it behaves, compared with SQL:
 | Split text / JSON array to multivalued | Turn a delimited text field into a multivalued facet |
 | Transpose columns to rows | Wide to long, so years or measures become one facet |
 | Skip records / Delete record | Drop rows the page never needs |
-| GeoJoin / Retrieve administrative divisions | Attach boundary shapes by admin code. Coverage outside France is unverified; for UK boundaries, joining on GSS codes from a boundary dataset on the portal is safer |
+| GeoJoin / Retrieve administrative divisions | Attach boundary shapes by admin code. Coverage outside France is unverified; elsewhere, joining on official area codes from a boundary dataset on the portal is safer |
 
 ## Widget-side alternatives (no republish)
 

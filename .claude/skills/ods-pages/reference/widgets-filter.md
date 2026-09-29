@@ -121,9 +121,9 @@ not on `<ods-facets>` itself. The parent takes only `context`.
 own in the documentation, which is why it appears nowhere in the index.
 
 ```html
-<ods-facets context="epc">
-    <ods-facet name="current_energy_rating" title="Rating"></ods-facet>
-    <ods-facet name="local_authority_label" title="Authority"
+<ods-facets context="ctx">
+    <ods-facet name="<category_field>" title="Category"></ods-facet>
+    <ods-facet name="<area_field>" title="Area"
                visible-items="5" sort="-count"></ods-facet>
 </ods-facets>
 ```

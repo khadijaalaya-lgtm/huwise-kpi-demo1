@@ -2,6 +2,11 @@
 
 Complete fragments to start from. Each states what the dataset must provide.
 
+Names in angle brackets are placeholders: `<dataset_id>`, `<category_field>`,
+`<date_field>`, `<measure_field>` and so on stand for the portal's own
+dataset IDs and field names (check them in the API first), and `<colour 1>`
+and similar for the portal's palette. `ctx` is the page's main context.
+
 **Tested** means the pattern has been rendered against a live portal and the
 expected values confirmed in the DOM. **Untested** means it is assembled from
 the reference and has not been run; verify it with `preview-harness.html`
@@ -13,12 +18,12 @@ Needs: any dataset.
 
 ```html
 <div ods-dataset-context
-     context="epc"
-     epc-dataset="epc_domestic_lep_ods">
+     context="ctx"
+     ctx-dataset="<dataset_id>">
     <div ods-aggregation="n"
-         ods-aggregation-context="epc"
+         ods-aggregation-context="ctx"
          ods-aggregation-function="COUNT">
-        <p class="epc-kpi">{{ n | number }} certificates</p>
+        <p class="my-page-kpi">{{ n | number }} records</p>
     </div>
 </div>
 ```
@@ -32,16 +37,16 @@ Needs: any text field. This is the reliable way to group by a text field,
 because it uses the search API, which accepts a facet name ad hoc.
 
 ```html
-<ul class="epc-bars"
-    ods-facet-results="ratings"
-    ods-facet-results-context="epc"
-    ods-facet-results-facet-name="current_energy_rating"
+<ul class="my-page-bars"
+    ods-facet-results="items"
+    ods-facet-results-context="ctx"
+    ods-facet-results-facet-name="<category_field>"
     ods-facet-results-sort="alphanum">
-    <li ng-repeat="r in ratings">
-        <span class="epc-bars__label">{{ r.name }}</span>
-        <span class="epc-bars__bar"
+    <li ng-repeat="r in items">
+        <span class="my-page-bars__label">{{ r.name }}</span>
+        <span class="my-page-bars__bar"
               ng-style="{ width: (r.count / n * 100) + '%' }"></span>
-        <span class="epc-bars__value">{{ r.count | number }}</span>
+        <span class="my-page-bars__value">{{ r.count | number }}</span>
     </li>
 </ul>
 ```
@@ -60,13 +65,13 @@ empty box with a timezone footer underneath — no error in the console.
 ```html
 <div class="chart-panel">
     <ods-chart>
-        <ods-chart-query context="epc"
-                         field-x="current_energy_rating"
+        <ods-chart-query context="ctx"
+                         field-x="<category_field>"
                          maxpoints="10">
             <ods-chart-serie chart-type="column"
                              function-y="COUNT"
-                             expression-y="current_energy_rating"
-                             color="#40A832">
+                             expression-y="<category_field>"
+                             color="<colour 1>">
             </ods-chart-serie>
         </ods-chart-query>
     </ods-chart>
@@ -93,13 +98,13 @@ Needs: a date or datetime field.
 
 ```html
 <ods-chart>
-    <ods-chart-query context="epc"
-                     field-x="lodgement_datetime"
+    <ods-chart-query context="ctx"
+                     field-x="<date_field>"
                      timescale="month">
         <ods-chart-serie chart-type="line"
                          function-y="COUNT"
-                         expression-y="lodgement_datetime"
-                         color="#40A832">
+                         expression-y="<date_field>"
+                         color="<colour 1>">
         </ods-chart-serie>
     </ods-chart-query>
 </ods-chart>
@@ -110,8 +115,8 @@ date field must be declared as a facet, as for any other chart grouping.
 A yearly column version, stacked by category, is tested: see
 "Category mix as 100% stacked bars".
 
-Summing a measure per year, stacked by category, is tested on
-`ghg-emissions` (`stacked="normal"`, `function-y="SUM"`,
+Summing a measure per year, stacked by category, is tested
+(`stacked="normal"`, `function-y="SUM"`,
 `expression-y="<numeric field>"`, `series-breakdown="<facet>"`). Negative
 values stack below the axis correctly.
 
@@ -128,28 +133,30 @@ Highcharts paints a white background, which stands out on a tinted page:
 ## Lines per category over a percentile band, switched by a dropdown (tested)
 
 Needs: a date facet, a text facet to break down by, and per-row band
-columns. Tested on `west-of-england-indicators` (2026-09-25). One context
-per card; the dropdown sets the context's refine.
+columns (low, median and high values of the comparison group). One context
+per card; the dropdown sets the context's refine. `options` holds one row
+per selectable series, with its display unit and timescale, for example from
+an `ods-adv-analysis` on a lookup dataset.
 
 ```html
 <div ng-if="options.length"
-     ng-init="sel.c = options[0]; card.parameters['refine.indicator'] = sel.c.indicator">
+     ng-init="sel.c = options[0]; card.parameters['refine.<series_field>'] = sel.c.<series_field>">
     <select ng-model="sel.c"
-            ng-options="r as r.indicator for r in options track by r.indicator"
-            ng-change="card.parameters['refine.indicator'] = sel.c.indicator"></select>
+            ng-options="r as r.<series_field> for r in options track by r.<series_field>"
+            ng-change="card.parameters['refine.<series_field>'] = sel.c.<series_field>"></select>
     <div class="chart-wrap">
-        <ods-chart ng-repeat="k in [sel.c.indicator]" single-y-axis="true"
-                   single-y-axis-label="{{ sel.c.unit }}" display-legend="false">
-            <ods-chart-query context="card" field-x="period" timescale="{{ sel.c.timescale }}" maxpoints="0">
+        <ods-chart ng-repeat="k in [sel.c.<series_field>]" single-y-axis="true"
+                   single-y-axis-label="{{ sel.c.<unit_field> }}" display-legend="false">
+            <ods-chart-query context="card" field-x="<date_field>" timescale="{{ sel.c.<timescale_field> }}" maxpoints="0">
                 <ods-chart-serie chart-type="arearange" color="#cfcfcf" index="1"
-                                 subseries='[{"func": "MIN", "yAxis": "other_p10"}, {"func": "MAX", "yAxis": "other_p90"}]'>
+                                 subseries='[{"func": "MIN", "yAxis": "<band_low_field>"}, {"func": "MAX", "yAxis": "<band_high_field>"}]'>
                 </ods-chart-serie>
-                <ods-chart-serie chart-type="line" function-y="AVG" expression-y="other_median" color="#6f6f6f" index="2">
+                <ods-chart-serie chart-type="line" function-y="AVG" expression-y="<band_median_field>" color="#6f6f6f" index="2">
                 </ods-chart-serie>
             </ods-chart-query>
-            <ods-chart-query context="card" field-x="period" timescale="{{ sel.c.timescale }}" maxpoints="0"
-                             series-breakdown="areanm" category-colors="areaColours">
-                <ods-chart-serie chart-type="line" function-y="AVG" expression-y="value" index="3">
+            <ods-chart-query context="card" field-x="<date_field>" timescale="{{ sel.c.<timescale_field> }}" maxpoints="0"
+                             series-breakdown="<area_field>" category-colors="areaColours">
+                <ods-chart-serie chart-type="line" function-y="AVG" expression-y="<value_field>" index="3">
                 </ods-chart-serie>
             </ods-chart-query>
         </ods-chart>
@@ -163,15 +170,17 @@ per card; the dropdown sets the context's refine.
   split by category too.
 - `timescale="{{ }}"` on `ods-chart-query` updates live (month to year and
   back). `single-y-axis-label="{{ }}"` does not; the one-item `ng-repeat`
-  rebuilds the chart whenever the indicator changes, which fixes it.
+  rebuilds the chart whenever the selection changes, which fixes it.
 - Tooltips show the date ("November 2017", or "2023" for a financial year)
   and the value with space thousands separators. They cannot show a unit
   that varies by row or a display label for the period, so put those in
   text beside the chart.
-- An `ng-if` on `chart_type` swaps in a different view per indicator.
+- An `ng-if` on a field of the selected option (such as a chart-type
+  column) swaps in a different view per series.
 
 A population pyramid is easier as HTML bars from `ods-adv-analysis`
-(group by `age_min, age, sex`, order by `age_min desc`, `ng-style` widths)
+(group by `<age_order_field>, <age_band_field>, <sex_field>`, order by
+`<age_order_field> desc`, `ng-style` widths)
 than as a chart: the order is under your control and a comparison
 outline is a bordered box.
 
@@ -182,51 +191,51 @@ Needs: the filtered fields declared as facets.
 ```html
 <div class="container"
      ods-dataset-context
-     context="epc"
-     epc-dataset="epc_domestic_lep_ods">
+     context="ctx"
+     ctx-dataset="<dataset_id>">
     <div class="row">
         <div class="col-md-3">
-            <ods-facets context="epc">
-                <ods-facet name="current_energy_rating" title="Rating"></ods-facet>
-                <ods-facet name="local_authority_label" title="Authority"></ods-facet>
+            <ods-facets context="ctx">
+                <ods-facet name="<category_field>" title="Category"></ods-facet>
+                <ods-facet name="<area_field>" title="Area"></ods-facet>
             </ods-facets>
-            <ods-clear-all-filters context="epc"></ods-clear-all-filters>
+            <ods-clear-all-filters context="ctx"></ods-clear-all-filters>
         </div>
         <div class="col-md-9">
-            <ods-filter-summary context="epc"></ods-filter-summary>
-            <ods-table context="epc"></ods-table>
+            <ods-filter-summary context="ctx"></ods-filter-summary>
+            <ods-table context="ctx"></ods-table>
         </div>
     </div>
 </div>
 ```
 
-Every widget sharing `context="epc"` reacts to the filters automatically;
+Every widget sharing `context="ctx"` reacts to the filters automatically;
 there is nothing to wire up.
 
 ## Free-text search (tested)
 
 ```html
-<ods-text-search context="epc"
-                 placeholder="Search addresses">
+<ods-text-search context="ctx"
+                 placeholder="Search">
 </ods-text-search>
 ```
 
 ## Map of geographic records (tested)
 
-Needs: a geo point or geo shape field. Tested on `ghg-emissions` with
-combined authority boundaries.
+Needs: a geo point or geo shape field. Tested with a boundary dataset of
+administrative areas.
 
 ```html
 <div class="map-panel">
-    <ods-map location="6,53.1,-1.9"
+    <ods-map location="<zoom>,<lat>,<lon>"
              scroll-wheel-zoom="false"
              toolbar-drawing="false"
              toolbar-geolocation="false">
         <ods-map-layer context="bounds"
                        display="categories"
                        color-by-field="name_field"
-                       color-categories="{'West of England': '#40A832'}"
-                       color-categories-other="#1D4F2B"
+                       color-categories="{'<area value>': '<highlight colour>'}"
+                       color-categories-other="<other colour>"
                        border-color="#FFFFFF"
                        shape-opacity="0.6">
         </ods-map-layer>
@@ -263,38 +272,38 @@ combined authority boundaries.
 Needs: a boundary dataset and a data dataset that share a name or code.
 The click refines a separate context on the data dataset; the panel reads
 it. More robust than a custom tooltip template, whose scope may not reach
-the page's contexts. Tested on `ghg-emissions`.
+the page's contexts.
 
 ```html
 <div ods-dataset-context
      context="bounds,pick"
-     bounds-dataset="cauths_weca_as_lep"
-     pick-dataset="ca_la_ghg_emissions_sub_sector_ods_vw"
-     pick-parameters="{'refine.cauthnm': 'West of England'}">
+     bounds-dataset="<boundary_dataset_id>"
+     pick-dataset="<dataset_id>"
+     pick-parameters="{'refine.<area_field>': '<area value>'}">
 
     <div class="map-grid">
         <div class="map-panel">
-            <ods-map location="6,53.1,-1.9">
+            <ods-map location="<zoom>,<lat>,<lon>">
                 <ods-map-layer context="bounds"
                                tooltip-disabled="true"
                                refine-on-click-context="pick"
-                               refine-on-click-map-field="cauth25nm"
-                               refine-on-click-context-field="cauthnm"
+                               refine-on-click-map-field="<boundary_name_field>"
+                               refine-on-click-context-field="<area_field>"
                                refine-on-click-replace-refine="true">
                 </ods-map-layer>
             </ods-map>
         </div>
         <aside class="map-card" aria-live="polite">
-            <p ng-if="!pick.parameters['refine.cauthnm']">Click an area on the map.</p>
-            <div ng-if="pick.parameters['refine.cauthnm']"
+            <p ng-if="!pick.parameters['refine.<area_field>']">Click an area on the map.</p>
+            <div ng-if="pick.parameters['refine.<area_field>']"
                  ods-adv-analysis="latest"
                  ods-adv-analysis-context="pick"
-                 ods-adv-analysis-select="sum(territorial_emissions_kt_co2e) as t"
-                 ods-adv-analysis-group-by="year(calendar_year) as y"
+                 ods-adv-analysis-select="sum(<measure_field>) as t"
+                 ods-adv-analysis-group-by="year(<date_field>) as y"
                  ods-adv-analysis-order-by="y desc"
                  ods-adv-analysis-limit="1">
-                <h3>{{ [].concat(pick.parameters['refine.cauthnm']).join(', ') }}</h3>
-                <p>{{ latest[0].y }}: {{ latest[0].t | number:0 }} kt</p>
+                <h3>{{ [].concat(pick.parameters['refine.<area_field>']).join(', ') }}</h3>
+                <p>{{ latest[0].y }}: {{ latest[0].t | number:0 }}</p>
             </div>
         </aside>
     </div>
@@ -313,7 +322,7 @@ the page's contexts. Tested on `ghg-emissions`.
 
 - `pick-parameters` sets the area shown before any click.
 - After a click the refine is stored as an **array**, so print it with
-  `[].concat(x).join(', ')`; a bare binding shows `["Devon and Torbay"]`.
+  `[].concat(x).join(', ')`; a bare binding shows `["Area A"]`.
 - Clicking the selected area again removes the refine; the `ng-if`
   message covers that.
 - "Latest" is `group-by` year, `order-by` descending, `limit` 1, so it
@@ -323,41 +332,40 @@ the page's contexts. Tested on `ghg-emissions`.
 
 ```html
 <div ods-dataset-context
-     context="epc,pop"
-     epc-dataset="epc_domestic_lep_ods"
-     pop-dataset="population_estimates">
+     context="ctx,ref"
+     ctx-dataset="<dataset_id>"
+     ref-dataset="<second_dataset_id>">
     ...
 </div>
 ```
 
 Each context's settings carry its own prefix. Widgets name the one they want
-with `context="epc"` or `context="pop"`.
+with `context="ctx"` or `context="ref"`.
 
 Two contexts on the **same** dataset are also useful: one driven by the
 page filters, one never filtered, for denominators and lookups that must
-ignore the filters. Tested on `ghg-emissions` with four contexts in one
-declaration.
+ignore the filters. Tested with four contexts in one declaration.
 
 ## Category mix as 100% stacked bars (tested)
 
-Needs: both fields declared as facets. Tested on `epc-domestic` with four
-charts: rating mix by local authority, property type, tenure, and year.
+Needs: both fields declared as facets. Tested with four charts on one
+page, each breaking a different facet down by the same category field.
 
 ```html
 <div class="chart-panel">
     <ods-chart single-y-axis="true"
-               single-y-axis-label="Share of homes"
+               single-y-axis-label="Share of records"
                scientific-display="false">
-        <ods-chart-query context="epc"
-                         field-x="property_type"
+        <ods-chart-query context="ctx"
+                         field-x="<group_field>"
                          maxpoints="0"
                          stacked="percent"
-                         series-breakdown="current_energy_rating"
-                         category-colors="{'A': '#1D4F2B', 'B': '#40A832', 'C': '#8FCC87', 'D': '#A6A6A5', 'E': '#ED8073', 'F': '#CE132D', 'G': '#8C0017'}">
+                         series-breakdown="<category_field>"
+                         category-colors="{'<value 1>': '<colour 1>', '<value 2>': '<colour 2>', '<value 3>': '<colour 3>'}">
             <ods-chart-serie chart-type="bar"
                              function-y="COUNT"
-                             expression-y="current_energy_rating"
-                             label-y="Homes">
+                             expression-y="<category_field>"
+                             label-y="Records">
             </ods-chart-serie>
         </ods-chart-query>
     </ods-chart>
@@ -380,22 +388,22 @@ to test the query before drawing it:
 ```
 
 It returns one cell per combination:
-`{"x": {"property_type": "Bungalow", "current_energy_rating": "A"}, "s": 368}`.
+`{"x": {"<group_field>": "<group value>", "<category_field>": "<value 1>"}, "s": 368}`.
 A `series_breakdown=` parameter is silently ignored and returns totals only.
 
 ## Several aggregations on one element (tested)
 
 ```html
 <div ods-aggregation="n, cur, pot"
-     ods-aggregation-n-context="epc"
+     ods-aggregation-n-context="ctx"
      ods-aggregation-n-function="COUNT"
-     ods-aggregation-cur-context="epc"
+     ods-aggregation-cur-context="ctx"
      ods-aggregation-cur-function="AVG"
-     ods-aggregation-cur-expression="current_energy_efficiency"
-     ods-aggregation-pot-context="epc"
+     ods-aggregation-cur-expression="<measure_field>"
+     ods-aggregation-pot-context="ctx"
      ods-aggregation-pot-function="AVG"
-     ods-aggregation-pot-expression="potential_energy_efficiency">
-    {{ n | number }} homes, average score {{ cur | number:0 }} (could be {{ pot | number:0 }})
+     ods-aggregation-pot-expression="<measure_field_2>">
+    {{ n | number }} records, average {{ cur | number:0 }} (target {{ pot | number:0 }})
 </div>
 ```
 
@@ -406,15 +414,15 @@ of them update with the context's filters.
 
 ## Share of records meeting a condition (tested)
 
-Needs: any fields. For example, "% rated A to C", which a facet count cannot
-give directly.
+Needs: any fields. For example, "% in the top three categories", which a facet count
+cannot give directly.
 
 ```html
 <div ods-adv-analysis="good"
-     ods-adv-analysis-context="epc"
+     ods-adv-analysis-context="ctx"
      ods-adv-analysis-select="count(*) as n"
-     ods-adv-analysis-where="current_energy_rating in ('A','B','C')">
-    {{ good[0].n / n * 100 | number:0 }}% rated A to C
+     ods-adv-analysis-where="<category_field> in ('<value 1>','<value 2>','<value 3>')">
+    {{ good[0].n / n * 100 | number:0 }}% in the top three categories
 </div>
 ```
 
@@ -426,17 +434,17 @@ is an array of rows, hence `good[0].n`. `n` here comes from an enclosing
 
 ## Two distributions side by side (tested)
 
-Needs: two text fields with the same categories, such as current and
-potential rating. Neither needs to be a declared facet.
+Needs: two text fields with the same categories, such as a current and a
+target category. Neither needs to be a declared facet.
 
 ```html
 <div ods-facet-results="current"
-     ods-facet-results-context="epc"
-     ods-facet-results-facet-name="current_energy_rating">
+     ods-facet-results-context="ctx"
+     ods-facet-results-facet-name="<category_field>">
     <div ods-facet-results="potential"
-         ods-facet-results-context="epc"
-         ods-facet-results-facet-name="potential_energy_rating">
-        <div class="compare__row" ng-repeat="band in ['A', 'B', 'C', 'D', 'E', 'F', 'G']">
+         ods-facet-results-context="ctx"
+         ods-facet-results-facet-name="<category_field_2>">
+        <div class="compare__row" ng-repeat="band in ['<value 1>', '<value 2>', '<value 3>']">
             <span>{{ band }}</span>
             <div class="compare__bar"
                  ng-style="{ width: (((current | filter:{name: band}:true)[0].count || 0) / n * 100) + '%' }"></div>
@@ -458,7 +466,7 @@ potential rating. Neither needs to be a declared facet.
 
 ## Page layout: headline figures, filters, alternating story rows (tested)
 
-Tested on `epc-domestic` at 1600px and 390px. The layout:
+Tested at 1600px and 390px. The layout:
 
 1. Headline figures run full width under the page header.
 2. Below them are two columns: a filter panel (a quarter of the width, pinned
@@ -489,10 +497,10 @@ Bootstrap version.
                     ng-click="filtersOpen = !filtersOpen">
                 {{ filtersOpen ? 'Hide filters' : 'Show filters' }}
             </button>
-            <ods-filter-summary context="epc"></ods-filter-summary>
+            <ods-filter-summary context="ctx"></ods-filter-summary>
             <div id="filters-body" class="filters__body">
-                <ods-facets context="epc">...</ods-facets>
-                <ods-clear-all-filters context="epc"></ods-clear-all-filters>
+                <ods-facets context="ctx">...</ods-facets>
+                <ods-clear-all-filters context="ctx"></ods-clear-all-filters>
             </div>
         </aside>
 
@@ -552,7 +560,7 @@ When several charts differ only in their field, put the markup in
 `pages/views/components/<name>.ejs` and include it with parameters:
 
 ```ejs
-<%- include('components/epc-rating-chart.ejs', {field: 'tenure', type: 'bar', label: 'Homes'}); %>
+<%- include('components/category-chart.ejs', {field: '<group_field>', type: 'bar', label: 'Records'}); %>
 ```
 
 Inside the partial, test optional parameters with `locals.timescale`,
@@ -563,31 +571,31 @@ office.
 ## Page controls: year selector and measure switch (tested)
 
 Needs: a date field, and optionally two numeric fields to switch between.
-Tested on `ghg-emissions`. `ods-adv-analysis` re-runs whenever a `{{ }}`
+`ods-adv-analysis` re-runs whenever a `{{ }}`
 binding in `select`, `where` or `group-by` changes, so plain scope
 variables become page-wide controls with no script.
 
 ```html
-<div ods-dataset-context context="ghg,base" ...
-     ng-init="sel = {m: 'territorial_emissions_kt_co2e'}">
+<div ods-dataset-context context="ctx,base" ...
+     ng-init="sel = {m: '<measure_field>'}">
 
     <div ods-adv-analysis="years"
          ods-adv-analysis-context="base"
-         ods-adv-analysis-group-by="year(calendar_year) as y"
+         ods-adv-analysis-group-by="year(<date_field>) as y"
          ods-adv-analysis-order-by="y desc">
     <div ng-if="years.length"
          ng-init="sel.yr = years[0].y">
 
         <select ng-model="sel.yr" ng-options="r.y as r.y for r in years"></select>
-        <label><input type="radio" ng-model="sel.m" value="territorial_emissions_kt_co2e"> All</label>
-        <label><input type="radio" ng-model="sel.m" value="emissions_within_the_scope_of_influence_of_las_kt_co2"> Within influence</label>
+        <label><input type="radio" ng-model="sel.m" value="<measure_field>"> Measure A</label>
+        <label><input type="radio" ng-model="sel.m" value="<measure_field_2>"> Measure B</label>
 
         <div ods-adv-analysis="tot"
-             ods-adv-analysis-context="ghg"
+             ods-adv-analysis-context="ctx"
              ods-adv-analysis-select="sum({{ sel.m }}) as t"
-             ods-adv-analysis-where="calendar_year = date'{{ sel.yr }}'"
-             ods-adv-analysis-group-by="calendar_year">
-            {{ tot[0].t | number:0 }} kt in {{ sel.yr }}
+             ods-adv-analysis-where="<date_field> = date'{{ sel.yr }}'"
+             ods-adv-analysis-group-by="<date_field>">
+            {{ tot[0].t | number:0 }} in {{ sel.yr }}
         </div>
     </div>
     </div>
@@ -606,17 +614,17 @@ variables become page-wide controls with no script.
 ## Drill-down on the active filter (tested)
 
 Needs: two levels of text facet, such as region and area, or sector and
-sub-sector. Tested on `ghg-emissions`. A context's active filters are in
+sub-sector. A context's active filters are in
 `ctx.parameters['refine.<field>']`: a string for one value, an array for
 several. Group by the lower level once the higher one is filtered.
 
 ```html
 <div ods-adv-analysis="areas"
-     ods-adv-analysis-context="ghg"
-     ods-adv-analysis-select="sum(territorial_emissions_kt_co2e) as t"
-     ods-adv-analysis-group-by="{{ ghg.parameters['refine.cauthnm'] ? 'local_authority' : 'cauthnm' }} as name"
+     ods-adv-analysis-context="ctx"
+     ods-adv-analysis-select="sum(<measure_field>) as t"
+     ods-adv-analysis-group-by="{{ ctx.parameters['refine.<area_field>'] ? '<sub_area_field>' : '<area_field>' }} as name"
      ods-adv-analysis-order-by="t desc">
-    <h2>{{ ghg.parameters['refine.cauthnm'] ? 'Local authorities' : 'Combined authorities' }}</h2>
+    <h2>{{ ctx.parameters['refine.<area_field>'] ? 'Sub-areas' : 'Areas' }}</h2>
     <ul><li ng-repeat="r in areas">{{ r.name }}: {{ r.t | number:0 }}</li></ul>
 </div>
 ```
@@ -626,37 +634,37 @@ list from it. ODSQL accepts double-quoted strings, written `&quot;`
 inside the attribute:
 
 ```
-{{ ghg.parameters['refine.cauthnm'] ? ' AND cauthnm IN (&quot;' + [].concat(ghg.parameters['refine.cauthnm']).join('&quot;,&quot;') + '&quot;)' : '' }}
+{{ ctx.parameters['refine.<area_field>'] ? ' AND <area_field> IN (&quot;' + [].concat(ctx.parameters['refine.<area_field>']).join('&quot;,&quot;') + '&quot;)' : '' }}
 ```
 
 This is how an unfiltered `base` context follows only the geographic
-filters, for a population that sector filters must not shrink.
+filters, for a denominator that the other filters must not shrink.
 
 ## Bars from a query, with a ratio from a second query (tested)
 
 Needs: nothing declared. For what `ods-chart` can't draw: a ratio of two
-queries (emissions per person), negative values, or a second figure per
-bar. Tested on `ghg-emissions`.
+queries (a value per person), negative values, or a second figure per
+bar.
 
 ```html
 <div ods-adv-analysis="areas"
-     ods-adv-analysis-context="ghg"
-     ods-adv-analysis-select="sum(territorial_emissions_kt_co2e) as t"
-     ods-adv-analysis-group-by="cauthnm as name"
+     ods-adv-analysis-context="ctx"
+     ods-adv-analysis-select="sum(<measure_field>) as t"
+     ods-adv-analysis-group-by="<area_field> as name"
      ods-adv-analysis-order-by="t desc">
     <div ods-adv-analysis="pops"
          ods-adv-analysis-context="base"
-         ods-adv-analysis-select="sum(midyear_population_thousands) as p"
-         ods-adv-analysis-where="la_ghg_sub_sector = 'Domestic Electricity' AND greenhouse_gas = 'CO2'"
-         ods-adv-analysis-group-by="cauthnm as name">
+         ods-adv-analysis-select="sum(<population_field>) as p"
+         ods-adv-analysis-where="<one_row_per_area_filter>"
+         ods-adv-analysis-group-by="<area_field> as name">
         <ul class="bars">
             <li class="bars__row" ng-repeat="r in areas">
                 <span>{{ r.name }}</span>
                 <span class="bars__bar"
                       ng-style="{ width: ((r.t < 0 ? -r.t : r.t) / areas[0].t * 100) + '%',
-                                  background: r.t < 0 ? '#A6A6A5' : '#1D4F2B' }"></span>
+                                  background: r.t < 0 ? '<negative colour>' : '<positive colour>' }"></span>
                 <span>{{ r.t | number:0 }}</span>
-                <span>{{ r.t / (pops | filter:{name: r.name}:true)[0].p | number:1 }} t per person</span>
+                <span>{{ r.t / (pops | filter:{name: r.name}:true)[0].p | number:1 }} per person</span>
             </li>
         </ul>
     </div>
@@ -677,9 +685,9 @@ the pasted HTML is plain AngularJS.
 
 ```ejs
 <%
-const refine = (f) => `ghg.parameters['refine.${f}']`;
-const GEO_PICKED = `(${refine('cauthnm')} || ${refine('local_authority')})`;
-const AREA_FIELD = `(${GEO_PICKED} ? 'local_authority' : 'cauthnm')`;
+const refine = (f) => `ctx.parameters['refine.${f}']`;
+const GEO_PICKED = `(${refine('<area_field>')} || ${refine('<sub_area_field>')})`;
+const AREA_FIELD = `(${GEO_PICKED} ? '<sub_area_field>' : '<area_field>')`;
 -%>
 <div ods-adv-analysis-group-by="{{ <%- AREA_FIELD %> }} as name" ...>
 ```
@@ -691,7 +699,7 @@ Use `<%-` (raw), not `<%=`, or quotes are escaped.
 Drop this beside anything that is not appearing:
 
 ```html
-<pre>{{ ratings | json }}</pre>
+<pre>{{ items | json }}</pre>
 ```
 
 If it prints `undefined`, the variable name or its scope is wrong. If it

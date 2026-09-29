@@ -86,8 +86,8 @@ into a portal that already has hundreds of rules, and a bare `.header` or
 `.card` will collide.
 
 ```scss
-.epc-summary { }
-.epc-summary__figure { }
+.my-page-summary { }
+.my-page-summary__figure { }
 ```
 
 ## SCSS in the local kit
@@ -105,11 +105,11 @@ The most common page element is a single number from an aggregation. It needs
 no library:
 
 ```html
-<p class="epc-kpi">{{ n | number }} certificates</p>
+<p class="my-page-kpi">{{ n | number }} records</p>
 ```
 
 ```scss
-.epc-kpi {
+.my-page-kpi {
     font-size: 2.5rem;
     font-weight: 700;
     line-height: 1.1;
@@ -124,17 +124,17 @@ requirement in `recipes.md`), a list plus `ng-style` gives a horizontal bar
 chart with no dependencies:
 
 ```html
-<ul class="epc-bars">
-    <li ng-repeat="r in ratings">
-        <span class="epc-bars__label">{{ r.name }}</span>
-        <span class="epc-bars__bar" ng-style="{ width: (r.count / n * 100) + '%' }"></span>
-        <span class="epc-bars__value">{{ r.count | number }}</span>
+<ul class="my-page-bars">
+    <li ng-repeat="r in items">
+        <span class="my-page-bars__label">{{ r.name }}</span>
+        <span class="my-page-bars__bar" ng-style="{ width: (r.count / n * 100) + '%' }"></span>
+        <span class="my-page-bars__value">{{ r.count | number }}</span>
     </li>
 </ul>
 ```
 
 ```scss
-.epc-bars {
+.my-page-bars {
     list-style: none;
     padding: 0;
     max-width: 40rem;
@@ -146,9 +146,9 @@ chart with no dependencies:
     }
 }
 
-.epc-bars__label { width: 1.5rem; font-weight: 700; }
-.epc-bars__bar   { height: 1.25rem; min-width: 2px; background: #40A832; }
-.epc-bars__value { white-space: nowrap; font-size: 0.875rem; }
+.my-page-bars__label { width: 1.5rem; font-weight: 700; }
+.my-page-bars__bar   { height: 1.25rem; min-width: 2px; background: currentColor; // or the portal's accent colour }
+.my-page-bars__value { white-space: nowrap; font-size: 0.875rem; }
 ```
 
 `min-width` keeps a zero-ish category visible rather than collapsing it to

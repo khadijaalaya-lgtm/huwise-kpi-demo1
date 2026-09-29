@@ -28,7 +28,7 @@ these before debugging anything else.
 - **A widget's variable is scoped to the element that declares it.**
   `ods-aggregation="n"` makes `n` available inside that element only.
 - **Context parameters carry the context's name as a prefix.**
-  `context="epc"` means the dataset attribute is `epc-dataset`.
+  `context="ctx"` means the dataset attribute is `ctx-dataset`.
 - **`ods-chart` can only group by a declared facet.** Grouping on a text field
   that is not declared as a facet in the back office returns
   `Unknown facet name` from the analyze API and draws an empty chart. Use
@@ -43,7 +43,7 @@ these before debugging anything else.
   query on the smallest element enclosing every place the value is used,
   such as the `<section>` holding both text and chart.
 - **Facet counts are record counts.** When a dataset has many rows per
-  entity (per year, sector, gas), the numbers beside each filter value mean
+  entity (per year and category), the numbers beside each filter value mean
   nothing to a reader. Hide them with
   `.odswidget-facet__category-count { display: none; }`. Only the first
   `visible-items` values (default 6) show before a "More" link; raise it for
@@ -92,8 +92,8 @@ Done when you have the exact field names, their types, and the list of
 declared facets in hand. Most blank pages trace back to skipping this.
 
 Also check whether any numeric field **repeats on every row** of an entity,
-such as population or area on a table with one row per authority, year,
-sector and gas. Summing it multiplies it by the number of rows. Find a
+such as population or area on a table with one row per area, year and
+category. Summing it multiplies it by the number of rows. Find a
 filter that leaves exactly one row per entity and period, and sum only
 those rows (`widgets-aggregation.md`, ODSQL notes). ODSQL traps are listed
 there too; test each query with `curl` before putting it in a widget.
@@ -160,12 +160,23 @@ DOM — not merely that the build passed.
 google-chrome --headless=new --dump-dom --virtual-time-budget=30000 <url>
 ```
 
+On macOS, `google-chrome` is not on the `PATH`. Chrome's binary is at
+`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`; quote the
+path (it has spaces) or define a shell alias once:
+
+```bash
+alias google-chrome='"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"'
+```
+
+The same applies to every `google-chrome` command below and in
+`reference/preview-harness.html`.
+
 With no dev kit, or to check one widget in isolation, copy
 `reference/preview-harness.html`, fill in the portal and dataset, and render
 that file directly. It loads the widget library from the CDN and queries the
 live portal from a `file://` URL.
 
-Wrap values in sentinels (`RATING:{{ r.name }}:END`) so you can grep them out
+Wrap values in sentinels (`VALUE:{{ r.name }}:END`) so you can grep them out
 of the dumped DOM.
 
 Done when every figure, label and list you added appears in the dumped DOM

@@ -256,11 +256,11 @@ Test a query with `curl` against
 before putting it in the widget: a malformed query leaves the variable
 `undefined` and logs nothing on the page.
 
-- **Date fields compare with date literals:** `calendar_year = date'2024'`.
+- **Date fields compare with date literals:** `<date_field> = date'2024'`.
   A plain `'2024'` fails with `IncompatibleTypesInComparisonFilter`.
-- **No `IN` on a function:** `year(calendar_year) in (2005, 2024)` and
-  `calendar_year in (date'2005', date'2024')` are syntax errors. Use `OR`.
-  `IN` on a plain text field works: `cauthnm IN ("A", "B")`.
+- **No `IN` on a function:** `year(<date_field>) in (2005, 2024)` and
+  `<date_field> in (date'2005', date'2024')` are syntax errors. Use `OR`.
+  `IN` on a plain text field works: `<text_field> IN ("A", "B")`.
 - **Declare an alias once.** `select=year(d) as y` together with
   `group_by=year(d) as y` fails with "Alias 'y' is declared several times".
   Put it in `group_by` only; the grouped value still comes back as `y`.
