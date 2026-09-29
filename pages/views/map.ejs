@@ -1,0 +1,11 @@
+<%- include('components/nav-header.ejs', {'page':'map'}); -%>
+
+<ods-dataset-context context="ctx"
+        ctx-dataset="us-hospitals"
+        ng-init="values = {};">
+
+    <%- include("map-first-section.ejs"); %>
+
+    <%- include("map-second-section.ejs"); %>
+
+</ods-dataset-context>
