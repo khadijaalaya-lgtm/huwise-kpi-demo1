@@ -1,0 +1,13 @@
+<!-- A reusable component, ready to include wherever you want in your code -->
+<!-- simply declare in the same scope / HTML block these 2 variables :
+    - 'gobackurl'   : the url 
+    - 'gobacklabel' : the label 
+-->
+<div class="goback">
+    <a href="{{ gobackurl }}" 
+       title="Go back"
+       class="goback-link">
+       <i class="fa fa-long-arrow-left goback-icon" aria-hidden="true"></i>
+        {{ gobacklabel }}
+    </a>
+</div>

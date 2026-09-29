@@ -1,0 +1,12 @@
+<%- include('components/nav-header.ejs', {'page':'dataviz'}); -%>
+
+<ods-dataset-context context="ctx" ctx-dataset="sources-of-inspiration" 
+ng-init="values = {};">
+
+<%- include("dataviz-first-section.ejs"); %>
+
+<%- include("dataviz-second-section.ejs"); %>
+
+<%- include("dataviz-third-section.ejs"); %>
+
+</ods-dataset-context>

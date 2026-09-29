@@ -1,0 +1,31 @@
+<nav>
+    <div class="container">
+        <div class="header-container">
+            <div class="header-logo-container">
+                <img src="/assets/theme_image/logo_ods.svg"
+                class="header-logo"
+                alt="ODS Labs local development kit">
+            </div>
+            <div class="header-details">
+                <span>ODS Labs</span>
+                <strong>Local development kit</strong>
+            </div>
+            
+            
+            <ul class="navigation">
+                <li>
+                    <a href="/pages/map"
+                    class="navigation-link <% if (page == 'map') { %>navigation-link-active <% } %>">Map !</a>
+                </li>
+                <li>
+                    <a href="/pages/dataviz"
+                       class="navigation-link <% if (page == 'dataviz') { %>navigation-link-active <% } %>">Dataviz !</a>
+                </li>
+                <li>
+                    <a href="/pages/empty"
+                       class="navigation-link <% if (page == 'empty') { %>navigation-link-active <% } %>">Empty !</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

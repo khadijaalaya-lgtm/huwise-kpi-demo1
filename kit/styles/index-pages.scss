@@ -1,0 +1,7 @@
+/*
+IMPORTANT : If you want to develop a standalone page and get rid of Opendatasoft stylesheets,
+ie. you want to develop a page that WILL NOT BE hosted by Opendatasoft, please comment the three next lines
+*/
+@use "ods-portal/internal-stylesheets/normalize.scss" as *;
+@use "ods-portal/internal-stylesheets/ods.scss" as *;
+@use "ods-portal/theme.scss" as *;
