@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--
+Standalone harness for checking widget syntax against a live portal, with no
+local dev kit. Replace PORTAL_URL and DATASET_ID, put your markup where marked,
+then render it:
+
+  google-chrome --headless=new --dump-dom --virtual-time-budget=30000 \
+      "file://$PWD/preview-harness.html"
+
+Wrap the values you want to confirm in sentinels (MARK:{{ n }}:END) so you can
+grep them out of the dumped DOM. The portal's API allows cross-origin requests,
+so this works straight from a file:// URL.
+
+Highcharts loads its modules lazily and headless Chrome does not wait for them,
+so a chart shows only its loading spinner here even when it is correct. To
+check a chart, confirm its query instead:
+
+  <PORTAL_URL>/api/records/1.0/analyze/?dataset=<DATASET_ID>&x=<field>&y.count.func=COUNT
+
+An undeclared text field returns {"error": "Unknown facet name '<field>'"}.
+-->
+<html lang="en" ng-app="harness">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.0/angular.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.8.2/angular-sanitize.min.js"></script>
+<script src="https://static.opendatasoft.com/ods-widgets/latest-v2/ods-widgets.js"></script>
+<script>
+angular.module('harness', ['ods-widgets']).config(function (ODSWidgetsConfigProvider) {
+    ODSWidgetsConfigProvider.setConfig({
+        defaultDomain: 'PORTAL_URL'
+    });
+});
+</script>
+<style>
+    .chart-panel, .map-panel { height: 24rem; }
+</style>
+</head>
+<body>
+
+<div ods-dataset-context context="ctx" ctx-dataset="DATASET_ID">
+
+    <!-- Your markup goes here. -->
+    <div ods-aggregation="n" ods-aggregation-context="ctx"
+         ods-aggregation-function="COUNT">
+        <p>COUNT:{{ n | number }}:END</p>
+    </div>
+
+</div>
+
+</body>
+</html>
