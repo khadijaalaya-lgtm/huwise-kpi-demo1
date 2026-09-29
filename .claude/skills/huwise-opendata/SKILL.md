@@ -236,3 +236,12 @@ facets), so the next query gets it right:
 - Declared facets: ...
 - Pitfalls: ...
 ```
+
+### parisdata: `etablissements-scolaires-maternelles`, `-ecoles-elementaires`, `-colleges`
+- Grain: one row per school and school year (`id_projet`, `annee_scol`), about six years. Filter on one year before counting.
+- Pitfalls: `annee_scol` is null on 71 rows (all 2022/2023), and 2022/2023 has about 65 extra rows; use `id_projet` or another year. Polyvalent schools appear in both the maternelles and élémentaires datasets, so don't add the two. No pupil counts or public/private field.
+
+### parisdata: `cours-oasis` (Cours Oasis)
+- Grain: one row per school yard transformed; `annee` (date) is the year of the works, `arrdt` is text (`"75020"`), `type` the kind of school.
+- Declared facets: `annee`, `arrdt`, `type`; no nulls in any of them (each sums to the total).
+- Pitfalls: the displayed `modified` date (2023) is older than `data_processed` (2025-11); the metadata doesn't say whether the latest year is complete.

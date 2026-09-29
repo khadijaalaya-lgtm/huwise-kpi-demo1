@@ -51,6 +51,10 @@ these before debugging anything else.
 - **`ods-adv-analysis` drops the whole result if a `group-by` field holds
   nulls.** The API returns the rows, but the variable stays `[]` and nothing
   is logged. Group only on fields that are never null.
+- **`ods-adv-analysis` with a `group-by` returns only 10 groups unless you
+  set `ods-adv-analysis-limit`.** The widget sends no limit, so the API
+  default of 10 applies: 20 districts silently become 10. Always set a limit
+  above the number of groups.
 - **A widget variable named like a context shadows it.**
   `ods-adv-analysis="inds" ods-adv-analysis-context="inds"` works once, then
   fails with `context.wait is not a function`. Give results their own names.
