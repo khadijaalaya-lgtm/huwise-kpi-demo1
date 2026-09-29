@@ -1,0 +1,262 @@
+<section class="oasis-kpi"
+         ods-dataset-context
+         context="oasis"
+         oasis-dataset="cours-oasis">
+
+    <div class="oasis-kpi__inner"
+         ods-adv-analysis="years"
+         ods-adv-analysis-context="oasis"
+         ods-adv-analysis-select="count(*) as n"
+         ods-adv-analysis-group-by="year(annee) as y"
+         ods-adv-analysis-order-by="y asc"
+         ods-adv-analysis-limit="100">
+
+        <header class="oasis-kpi__header">
+            <p class="oasis-kpi__eyebrow">
+                <span class="oasis-kpi__squares" aria-hidden="true"><i></i><i></i><i></i></span>
+                Éducation · Adaptation climatique
+            </p>
+            <h1 class="oasis-kpi__title">Les cours Oasis en chiffres</h1>
+            <p class="oasis-kpi__lead">
+                Les cours d'écoles et de collèges parisiens deviennent des îlots de fraîcheur&nbsp;:
+                plus de végétal, moins de bitume, des espaces partagés.
+            </p>
+        </header>
+
+        <ol class="oasis-kpi__grid">
+
+            <li class="oasis-kpi__card oasis-kpi__card--blue"
+                ods-adv-analysis="tot"
+                ods-adv-analysis-context="oasis"
+                ods-adv-analysis-select="count(*) as n"
+                ods-adv-analysis-limit="1">
+                <div class="oasis-kpi__body"
+                     ods-adv-analysis="types"
+                     ods-adv-analysis-context="oasis"
+                     ods-adv-analysis-select="count(*) as n"
+                     ods-adv-analysis-group-by="type"
+                     ods-adv-analysis-order-by="n desc"
+                     ods-adv-analysis-limit="20">
+                    <div class="oasis-kpi__top">
+                        <span class="oasis-kpi__icon" aria-hidden="true"><i class="fa fa-tree"></i></span>
+                        <span class="oasis-kpi__index" aria-hidden="true">01</span>
+                    </div>
+                    <p class="oasis-kpi__value">
+                        <span ng-if="tot.length">{{ tot[0].n | number }}</span>
+                        <span ng-if="!tot.length" class="oasis-kpi__skeleton"></span>
+                    </p>
+                    <p class="oasis-kpi__label">cours transformées en oasis</p>
+                    <p class="oasis-kpi__sub">
+                        <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                        <span ng-if="years.length">depuis <strong>{{ years[0].y }}</strong></span>
+                    </p>
+
+                    <div class="oasis-kpi__viz" ng-if="types.length && tot.length">
+                        <div class="oasis-kpi__split" role="img"
+                             aria-label="Répartition par type d'établissement">
+                            <span ng-repeat="t in types"
+                                  title="{{ t.type }} : {{ t.n }}"
+                                  ng-style="{ width: (t.n / tot[0].n * 100) + '%', opacity: 1 - $index * 0.17 }"></span>
+                        </div>
+                        <ul class="oasis-kpi__legend">
+                            <li ng-repeat="t in types | limitTo:3">
+                                <i ng-style="{ opacity: 1 - $index * 0.17 }"></i>{{ t.type }} <strong>{{ t.n }}</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+
+            <li class="oasis-kpi__card oasis-kpi__card--red">
+                <div class="oasis-kpi__top">
+                    <span class="oasis-kpi__icon" aria-hidden="true"><i class="fa fa-line-chart"></i></span>
+                    <span class="oasis-kpi__index" aria-hidden="true">02</span>
+                </div>
+                <p class="oasis-kpi__value">
+                    <span ng-if="years.length">{{ years[years.length - 1].n | number }}</span>
+                    <span ng-if="!years.length" class="oasis-kpi__skeleton"></span>
+                </p>
+                <p class="oasis-kpi__label">
+                    cours réalisées en <span ng-if="years.length">{{ years[years.length - 1].y }}</span>
+                </p>
+                <p class="oasis-kpi__sub" ng-if="years.length > 1">
+                    <span class="oasis-kpi__delta"
+                          ng-class="{ 'oasis-kpi__delta--down': years[years.length - 1].n < years[years.length - 2].n }">
+                        <i class="fa" aria-hidden="true"
+                           ng-class="years[years.length - 1].n < years[years.length - 2].n ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+                        {{ years[years.length - 1].n >= years[years.length - 2].n ? '+' : '' }}{{ (years[years.length - 1].n - years[years.length - 2].n) / years[years.length - 2].n * 100 | number:0 }}&nbsp;%
+                    </span>
+                    contre <strong>{{ years[years.length - 2].n }}</strong> en {{ years[years.length - 2].y }}
+                </p>
+
+                <div class="oasis-kpi__viz" ng-if="years.length">
+                    <ol class="oasis-kpi__bars" role="img"
+                        aria-label="Cours Oasis réalisées par année, de {{ years[0].y }} à {{ years[years.length - 1].y }}">
+                        <li ng-repeat="r in years"
+                            ng-class="{ 'is-current': $last }"
+                            title="{{ r.y }} : {{ r.n }}">
+                            <span class="oasis-kpi__bar"
+                                  ng-style="{ height: (r.n / (years | orderBy:'-n')[0].n * 100) + '%' }"></span>
+                            <span class="oasis-kpi__year">{{ ('' + r.y) | limitTo:-2 }}</span>
+                        </li>
+                    </ol>
+                </div>
+            </li>
+
+            <li class="oasis-kpi__card oasis-kpi__card--green"
+                ods-adv-analysis="arrs"
+                ods-adv-analysis-context="oasis"
+                ods-adv-analysis-select="count(*) as n"
+                ods-adv-analysis-group-by="arrdt"
+                ods-adv-analysis-order-by="n desc"
+                ods-adv-analysis-limit="100">
+                <div class="oasis-kpi__top">
+                    <span class="oasis-kpi__icon" aria-hidden="true"><i class="fa fa-map-marker"></i></span>
+                    <span class="oasis-kpi__index" aria-hidden="true">03</span>
+                </div>
+                <p class="oasis-kpi__value">
+                    <span ng-if="arrs.length">{{ arrs.length }}<small>/20</small></span>
+                    <span ng-if="!arrs.length" class="oasis-kpi__skeleton"></span>
+                </p>
+                <p class="oasis-kpi__label">arrondissements concernés</p>
+                <p class="oasis-kpi__sub" ng-if="arrs.length">
+                    <i class="fa fa-trophy" aria-hidden="true"></i>
+                    le <strong>{{ (arrs[0].arrdt | limitTo:-2) * 1 }}<sup>{{ (arrs[0].arrdt | limitTo:-2) * 1 === 1 ? 'er' : 'e' }}</sup></strong>
+                    en compte le plus&nbsp;: <strong>{{ arrs[0].n }}</strong>
+                </p>
+
+                <div class="oasis-kpi__viz" ng-if="arrs.length">
+                    <ol class="oasis-kpi__arrdts" role="img"
+                        aria-label="Nombre de cours Oasis par arrondissement">
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75001'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75001'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75001' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75001'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="1er : {{ (arrs | filter:{arrdt: '75001'}:true)[0].n || 0 }}">1</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75002'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75002'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75002' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75002'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="2e : {{ (arrs | filter:{arrdt: '75002'}:true)[0].n || 0 }}">2</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75003'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75003'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75003' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75003'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="3e : {{ (arrs | filter:{arrdt: '75003'}:true)[0].n || 0 }}">3</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75004'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75004'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75004' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75004'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="4e : {{ (arrs | filter:{arrdt: '75004'}:true)[0].n || 0 }}">4</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75005'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75005'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75005' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75005'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="5e : {{ (arrs | filter:{arrdt: '75005'}:true)[0].n || 0 }}">5</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75006'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75006'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75006' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75006'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="6e : {{ (arrs | filter:{arrdt: '75006'}:true)[0].n || 0 }}">6</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75007'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75007'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75007' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75007'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="7e : {{ (arrs | filter:{arrdt: '75007'}:true)[0].n || 0 }}">7</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75008'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75008'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75008' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75008'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="8e : {{ (arrs | filter:{arrdt: '75008'}:true)[0].n || 0 }}">8</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75009'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75009'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75009' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75009'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="9e : {{ (arrs | filter:{arrdt: '75009'}:true)[0].n || 0 }}">9</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75010'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75010'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75010' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75010'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="10e : {{ (arrs | filter:{arrdt: '75010'}:true)[0].n || 0 }}">10</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75011'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75011'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75011' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75011'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="11e : {{ (arrs | filter:{arrdt: '75011'}:true)[0].n || 0 }}">11</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75012'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75012'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75012' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75012'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="12e : {{ (arrs | filter:{arrdt: '75012'}:true)[0].n || 0 }}">12</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75013'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75013'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75013' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75013'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="13e : {{ (arrs | filter:{arrdt: '75013'}:true)[0].n || 0 }}">13</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75014'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75014'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75014' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75014'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="14e : {{ (arrs | filter:{arrdt: '75014'}:true)[0].n || 0 }}">14</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75015'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75015'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75015' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75015'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="15e : {{ (arrs | filter:{arrdt: '75015'}:true)[0].n || 0 }}">15</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75016'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75016'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75016' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75016'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="16e : {{ (arrs | filter:{arrdt: '75016'}:true)[0].n || 0 }}">16</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75017'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75017'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75017' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75017'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="17e : {{ (arrs | filter:{arrdt: '75017'}:true)[0].n || 0 }}">17</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75018'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75018'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75018' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75018'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="18e : {{ (arrs | filter:{arrdt: '75018'}:true)[0].n || 0 }}">18</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75019'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75019'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75019' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75019'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="19e : {{ (arrs | filter:{arrdt: '75019'}:true)[0].n || 0 }}">19</li>
+
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '75020'}:true)[0],
+                                        'is-dark': ((arrs | filter:{arrdt: '75020'}:true)[0].n || 0) / arrs[0].n > 0.55,
+                                        'is-top': arrs[0].arrdt === '75020' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * ((arrs | filter:{arrdt: '75020'}:true)[0].n || 0) / arrs[0].n) + ')' }"
+                            title="20e : {{ (arrs | filter:{arrdt: '75020'}:true)[0].n || 0 }}">20</li>
+
+                    </ol>
+                </div>
+            </li>
+        </ol>
+
+        <footer class="oasis-kpi__footer">
+            <span class="oasis-kpi__badge"><i class="fa fa-code" aria-hidden="true"></i> Bloc KPI personnalisé · calculé en direct</span>
+            <span>Source&nbsp;: <a href="/explore/dataset/cours-oasis/">Paris Data, «&nbsp;Cours Oasis&nbsp;»</a>, Direction des Affaires Scolaires</span>
+        </footer>
+    </div>
+</section>
