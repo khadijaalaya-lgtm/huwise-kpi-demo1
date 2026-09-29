@@ -1,1 +1,11 @@
 /* Style of your ODS Portal goes here */
+
+/* Local preview only (not part of the compiled page): mimic the Paris Data theme,
+   which loads Montserrat and sets these colours on the portal itself. */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+body {
+    background: #FAFCFF;
+    color: #071F32;
+    font-family: "Montserrat", Helvetica, Arial, sans-serif;
+}

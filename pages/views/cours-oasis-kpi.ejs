@@ -1,0 +1,166 @@
+<%#
+    Cours Oasis : bloc de 3 KPI personnalisé.
+    Source : jeu de données `cours-oasis` de Paris Data (une ligne par cour transformée).
+    Toutes les valeurs sont calculées en direct via l'API Explore v2.1 ; seul le « sur 20 » est fixe.
+
+    Pour coller la page sur Paris Data même, `oasis-domain` peut être retiré.
+-%>
+<%
+    const DATASET_URL = 'https://parisdata.huwise.com/explore/dataset/cours-oasis/';
+    // Codes des 20 arrondissements tels que stockés dans `arrdt` (texte) : 75001 … 75020
+    const ARRDTS = Array.from({length: 20}, (_, i) => ({n: i + 1, code: '750' + String(i + 1).padStart(2, '0')}));
+    // Part de la cour la plus dotée : sert à l'intensité des cases de la grille
+    const share = (code) => `((arrs | filter:{arrdt: '${code}'}:true)[0].n || 0) / arrs[0].n`;
+-%>
+<section class="oasis-kpi"
+         ods-dataset-context
+         context="oasis"
+         oasis-domain="parisdata.huwise.com"
+         oasis-dataset="cours-oasis">
+
+    <div class="oasis-kpi__inner"
+         ods-adv-analysis="years"
+         ods-adv-analysis-context="oasis"
+         ods-adv-analysis-select="count(*) as n"
+         ods-adv-analysis-group-by="year(annee) as y"
+         ods-adv-analysis-order-by="y asc"
+         ods-adv-analysis-limit="100">
+
+        <header class="oasis-kpi__header">
+            <p class="oasis-kpi__eyebrow">
+                <span class="oasis-kpi__squares" aria-hidden="true"><i></i><i></i><i></i></span>
+                Éducation · Adaptation climatique
+            </p>
+            <h1 class="oasis-kpi__title">Les cours Oasis en chiffres</h1>
+            <p class="oasis-kpi__lead">
+                Les cours d'écoles et de collèges parisiens deviennent des îlots de fraîcheur&nbsp;:
+                plus de végétal, moins de bitume, des espaces partagés.
+            </p>
+        </header>
+
+        <ol class="oasis-kpi__grid">
+
+            <%# KPI 1 : nombre total de cours Oasis, depuis la première année %>
+            <li class="oasis-kpi__card oasis-kpi__card--blue"
+                ods-adv-analysis="tot"
+                ods-adv-analysis-context="oasis"
+                ods-adv-analysis-select="count(*) as n"
+                ods-adv-analysis-limit="1">
+                <div class="oasis-kpi__body"
+                     ods-adv-analysis="types"
+                     ods-adv-analysis-context="oasis"
+                     ods-adv-analysis-select="count(*) as n"
+                     ods-adv-analysis-group-by="type"
+                     ods-adv-analysis-order-by="n desc"
+                     ods-adv-analysis-limit="20">
+                    <div class="oasis-kpi__top">
+                        <span class="oasis-kpi__icon" aria-hidden="true"><i class="fa fa-tree"></i></span>
+                        <span class="oasis-kpi__index" aria-hidden="true">01</span>
+                    </div>
+                    <p class="oasis-kpi__value">
+                        <span ng-if="tot.length">{{ tot[0].n | number }}</span>
+                        <span ng-if="!tot.length" class="oasis-kpi__skeleton"></span>
+                    </p>
+                    <p class="oasis-kpi__label">cours transformées en oasis</p>
+                    <p class="oasis-kpi__sub">
+                        <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                        <span ng-if="years.length">depuis <strong>{{ years[0].y }}</strong></span>
+                    </p>
+
+                    <div class="oasis-kpi__viz" ng-if="types.length && tot.length">
+                        <div class="oasis-kpi__split" role="img"
+                             aria-label="Répartition par type d'établissement">
+                            <span ng-repeat="t in types"
+                                  title="{{ t.type }} : {{ t.n }}"
+                                  ng-style="{ width: (t.n / tot[0].n * 100) + '%', opacity: 1 - $index * 0.17 }"></span>
+                        </div>
+                        <ul class="oasis-kpi__legend">
+                            <li ng-repeat="t in types | limitTo:3">
+                                <i ng-style="{ opacity: 1 - $index * 0.17 }"></i>{{ t.type }} <strong>{{ t.n }}</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+
+            <%# KPI 2 : cours réalisées l'année la plus récente, comparées à l'année précédente %>
+            <li class="oasis-kpi__card oasis-kpi__card--red">
+                <div class="oasis-kpi__top">
+                    <span class="oasis-kpi__icon" aria-hidden="true"><i class="fa fa-line-chart"></i></span>
+                    <span class="oasis-kpi__index" aria-hidden="true">02</span>
+                </div>
+                <p class="oasis-kpi__value">
+                    <span ng-if="years.length">{{ years[years.length - 1].n | number }}</span>
+                    <span ng-if="!years.length" class="oasis-kpi__skeleton"></span>
+                </p>
+                <p class="oasis-kpi__label">
+                    cours réalisées en <span ng-if="years.length">{{ years[years.length - 1].y }}</span>
+                </p>
+                <p class="oasis-kpi__sub" ng-if="years.length > 1">
+                    <span class="oasis-kpi__delta"
+                          ng-class="{ 'oasis-kpi__delta--down': years[years.length - 1].n < years[years.length - 2].n }">
+                        <i class="fa" aria-hidden="true"
+                           ng-class="years[years.length - 1].n < years[years.length - 2].n ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+                        {{ years[years.length - 1].n >= years[years.length - 2].n ? '+' : '' }}{{ (years[years.length - 1].n - years[years.length - 2].n) / years[years.length - 2].n * 100 | number:0 }}&nbsp;%
+                    </span>
+                    contre <strong>{{ years[years.length - 2].n }}</strong> en {{ years[years.length - 2].y }}
+                </p>
+
+                <div class="oasis-kpi__viz" ng-if="years.length">
+                    <ol class="oasis-kpi__bars" role="img"
+                        aria-label="Cours Oasis réalisées par année, de {{ years[0].y }} à {{ years[years.length - 1].y }}">
+                        <li ng-repeat="r in years"
+                            ng-class="{ 'is-current': $last }"
+                            title="{{ r.y }} : {{ r.n }}">
+                            <span class="oasis-kpi__bar"
+                                  ng-style="{ height: (r.n / (years | orderBy:'-n')[0].n * 100) + '%' }"></span>
+                            <span class="oasis-kpi__year">{{ ('' + r.y) | limitTo:-2 }}</span>
+                        </li>
+                    </ol>
+                </div>
+            </li>
+
+            <%# KPI 3 : arrondissements couverts sur 20, et celui qui en compte le plus %>
+            <li class="oasis-kpi__card oasis-kpi__card--green"
+                ods-adv-analysis="arrs"
+                ods-adv-analysis-context="oasis"
+                ods-adv-analysis-select="count(*) as n"
+                ods-adv-analysis-group-by="arrdt"
+                ods-adv-analysis-order-by="n desc"
+                ods-adv-analysis-limit="100">
+                <div class="oasis-kpi__top">
+                    <span class="oasis-kpi__icon" aria-hidden="true"><i class="fa fa-map-marker"></i></span>
+                    <span class="oasis-kpi__index" aria-hidden="true">03</span>
+                </div>
+                <p class="oasis-kpi__value">
+                    <span ng-if="arrs.length">{{ arrs.length }}<small>/20</small></span>
+                    <span ng-if="!arrs.length" class="oasis-kpi__skeleton"></span>
+                </p>
+                <p class="oasis-kpi__label">arrondissements concernés</p>
+                <p class="oasis-kpi__sub" ng-if="arrs.length">
+                    <i class="fa fa-trophy" aria-hidden="true"></i>
+                    le <strong>{{ (arrs[0].arrdt | limitTo:-2) * 1 }}<sup>{{ (arrs[0].arrdt | limitTo:-2) * 1 === 1 ? 'er' : 'e' }}</sup></strong>
+                    en compte le plus&nbsp;: <strong>{{ arrs[0].n }}</strong>
+                </p>
+
+                <div class="oasis-kpi__viz" ng-if="arrs.length">
+                    <ol class="oasis-kpi__arrdts" role="img"
+                        aria-label="Nombre de cours Oasis par arrondissement">
+                        <% ARRDTS.forEach(function (a) { %>
+                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '<%= a.code %>'}:true)[0],
+                                        'is-dark': <%- share(a.code) %> > 0.55,
+                                        'is-top': arrs[0].arrdt === '<%= a.code %>' }"
+                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * <%- share(a.code) %>) + ')' }"
+                            title="<%= a.n %><%= a.n === 1 ? 'er' : 'e' %> : {{ (arrs | filter:{arrdt: '<%= a.code %>'}:true)[0].n || 0 }}"><%= a.n %></li>
+                        <% }); %>
+                    </ol>
+                </div>
+            </li>
+        </ol>
+
+        <footer class="oasis-kpi__footer">
+            <span class="oasis-kpi__badge"><i class="fa fa-code" aria-hidden="true"></i> Bloc KPI personnalisé · calculé en direct</span>
+            <span>Source&nbsp;: <a href="<%= DATASET_URL %>" target="_blank" rel="noopener">Paris Data, «&nbsp;Cours Oasis&nbsp;»</a>, Direction des Affaires Scolaires</span>
+        </footer>
+    </div>
+</section>

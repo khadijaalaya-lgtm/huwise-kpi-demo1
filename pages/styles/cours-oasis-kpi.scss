@@ -1,0 +1,330 @@
+// Cours Oasis : bloc de 3 KPI personnalisé.
+// Palette et typographie reprises du thème Paris Data (theme_colors / typography du portail).
+
+$blue:   #354BCF;
+$navy:   #071F32;
+$red:    #E22C3F;
+$green:  #257D1B;
+$border: #C5C5C5;
+$bg:     #FAFCFF;
+$font:   "Montserrat", Helvetica, Arial, sans-serif;
+
+.oasis-kpi {
+    background: $bg;
+    color: $navy;
+    font-family: $font;
+    padding: 4rem 1rem;
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    &__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    // En-tête
+    &__header { max-width: 46rem; margin-bottom: 2.5rem; }
+
+    &__eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0 0 1rem;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: $blue;
+    }
+
+    &__squares {
+        display: inline-flex;
+        gap: 3px;
+
+        i { width: 10px; height: 10px; display: block; }
+        i:nth-child(1) { background: $blue; }
+        i:nth-child(2) { background: $red; }
+        i:nth-child(3) { background: $green; }
+    }
+
+    &__title {
+        margin: 0 0 1rem;
+        font-size: clamp(2rem, 5vw, 2.875rem); // 46px, comme le H1 du portail
+        font-weight: 700;
+        line-height: 1.1;
+        color: $blue;
+    }
+
+    &__lead {
+        margin: 0;
+        font-size: 1.0625rem;
+        line-height: 1.6;
+    }
+
+    // Grille des cartes
+    &__grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 1.5rem;
+
+        @media (min-width: 992px) {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 2rem;
+        }
+    }
+
+    &__card {
+        --accent: #{$blue};
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem 1.75rem 1.75rem;
+        background: #fff;
+        border: 1px solid $border;
+        border-top: 6px solid var(--accent);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        animation: oasis-kpi-in 0.5s ease both;
+
+        // Ombre décalée pleine, sans flou : un rappel graphique des angles droits de la Ville
+        &:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 8px 8px 0 var(--accent);
+        }
+
+        // Carte 1 : le résultat de `types` enveloppe tout le contenu
+        .oasis-kpi__body { display: flex; flex-direction: column; flex: 1; }
+
+        &--blue  { --accent: #{$blue}; }
+        &--red   { --accent: #{$red};   animation-delay: 0.08s; }
+        &--green { --accent: #{$green}; animation-delay: 0.16s; }
+    }
+
+    &__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+
+    &__icon {
+        width: 3rem;
+        height: 3rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent);
+        color: #fff;
+        font-size: 1.375rem;
+    }
+
+    // Numéro en filigrane
+    &__index {
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 0.8;
+        color: transparent;
+        -webkit-text-stroke: 1px $border;
+    }
+
+    &__value {
+        margin: 0;
+        min-height: 4.5rem;
+        font-size: 4.5rem;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+
+        small {
+            font-size: 0.45em;
+            font-weight: 700;
+            color: var(--accent);
+            margin-left: 0.1em;
+        }
+    }
+
+    &__skeleton {
+        display: inline-block;
+        width: 8rem;
+        height: 4rem;
+        background: linear-gradient(90deg, #eef1f8 25%, #f7f9fd 50%, #eef1f8 75%);
+        background-size: 200% 100%;
+        animation: oasis-kpi-shimmer 1.2s linear infinite;
+    }
+
+    &__label {
+        margin: 0.75rem 0 0;
+        font-size: 1.0625rem;
+        font-weight: 700;
+    }
+
+    &__sub {
+        margin: 1.25rem 0 0;
+        padding-top: 1rem;
+        border-top: 1px solid $border;
+        font-size: 0.875rem;
+        line-height: 1.5;
+
+        > .fa { color: var(--accent); margin-right: 0.35rem; }
+        sup { font-size: 0.65em; }
+    }
+
+    &__delta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-right: 0.35rem;
+        padding: 0.15rem 0.5rem;
+        background: $red;
+        color: #fff;
+        font-weight: 700;
+
+        &--down { background: $navy; }
+    }
+
+    // Mini-visualisations, en bas de chaque carte
+    &__viz {
+        margin-top: auto;
+        padding-top: 1.5rem;
+    }
+
+    // KPI 1 : répartition par type d'établissement
+    &__split {
+        display: flex;
+        height: 0.75rem;
+        gap: 2px;
+
+        span { display: block; background: $blue; min-width: 3px; }
+    }
+
+    &__legend {
+        list-style: none;
+        margin: 0.75rem 0 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem 1rem;
+        font-size: 0.75rem;
+
+        i {
+            display: inline-block;
+            width: 0.625rem;
+            height: 0.625rem;
+            margin-right: 0.35rem;
+            background: $blue;
+        }
+    }
+
+    // KPI 2 : réalisations par année
+    &__bars {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 5rem;
+
+        li {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .is-current .oasis-kpi__bar { background: $red; }
+        .is-current .oasis-kpi__year { color: $red; font-weight: 700; }
+    }
+
+    &__bar {
+        display: block;
+        width: 100%;
+        min-height: 3px;
+        background: rgba($red, 0.22);
+    }
+
+    &__year {
+        margin-top: 0.3rem;
+        font-size: 0.6875rem;
+        line-height: 1;
+    }
+
+    // KPI 3 : les 20 arrondissements
+    &__arrdts {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 3px;
+
+        li {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: $navy;
+        }
+
+        .is-dark { color: #fff; }
+        .is-empty { background: transparent !important; outline: 1px dashed $border; outline-offset: -1px; }
+        .is-top { outline: 2px solid $navy; outline-offset: -2px; }
+    }
+
+    &__footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem 1.5rem;
+        margin-top: 2rem;
+        font-size: 0.8125rem;
+
+        a { color: $blue; font-weight: 700; }
+    }
+
+    &__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.75rem;
+        border: 1px solid $blue;
+        color: $blue;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 0.6875rem;
+    }
+
+    // Mobile et tablette : une colonne, cartes plus compactes
+    @media (max-width: 991px) {
+        padding: 2.5rem 1rem;
+
+        &__card { padding: 1.5rem 1.25rem 1.25rem; }
+        &__top { margin-bottom: 1rem; }
+        &__index { font-size: 2.5rem; }
+        &__value { font-size: 3.5rem; min-height: 3.5rem; }
+        &__arrdts li { font-size: 0.625rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &__card, &__skeleton { animation: none; }
+        &__card { transition: none; }
+        &__card:hover { transform: none; }
+    }
+}
+
+@keyframes oasis-kpi-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes oasis-kpi-shimmer {
+    to { background-position: -200% 0; }
+}
