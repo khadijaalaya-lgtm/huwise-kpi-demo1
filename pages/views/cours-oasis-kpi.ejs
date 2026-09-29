@@ -7,10 +7,6 @@
 -%>
 <%
     const DATASET_URL = 'https://parisdata.huwise.com/explore/dataset/cours-oasis/';
-    // Codes des 20 arrondissements tels que stockés dans `arrdt` (texte) : 75001 … 75020
-    const ARRDTS = Array.from({length: 20}, (_, i) => ({n: i + 1, code: '750' + String(i + 1).padStart(2, '0')}));
-    // Part de la cour la plus dotée : sert à l'intensité des cases de la grille
-    const share = (code) => `((arrs | filter:{arrdt: '${code}'}:true)[0].n || 0) / arrs[0].n`;
 -%>
 <section class="oasis-kpi"
          ods-dataset-context
@@ -46,41 +42,19 @@
                 ods-adv-analysis-context="oasis"
                 ods-adv-analysis-select="count(*) as n"
                 ods-adv-analysis-limit="1">
-                <div class="oasis-kpi__body"
-                     ods-adv-analysis="types"
-                     ods-adv-analysis-context="oasis"
-                     ods-adv-analysis-select="count(*) as n"
-                     ods-adv-analysis-group-by="type"
-                     ods-adv-analysis-order-by="n desc"
-                     ods-adv-analysis-limit="20">
-                    <div class="oasis-kpi__top">
-                        <span class="oasis-kpi__icon" aria-hidden="true"><i class="fa fa-tree"></i></span>
-                        <span class="oasis-kpi__index" aria-hidden="true">01</span>
-                    </div>
-                    <p class="oasis-kpi__value">
-                        <span ng-if="tot.length">{{ tot[0].n | number }}</span>
-                        <span ng-if="!tot.length" class="oasis-kpi__skeleton"></span>
-                    </p>
-                    <p class="oasis-kpi__label">cours transformées en oasis</p>
-                    <p class="oasis-kpi__sub">
-                        <i class="fa fa-calendar-o" aria-hidden="true"></i>
-                        <span ng-if="years.length">depuis <strong>{{ years[0].y }}</strong></span>
-                    </p>
-
-                    <div class="oasis-kpi__viz" ng-if="types.length && tot.length">
-                        <div class="oasis-kpi__split" role="img"
-                             aria-label="Répartition par type d'établissement">
-                            <span ng-repeat="t in types"
-                                  title="{{ t.type }} : {{ t.n }}"
-                                  ng-style="{ width: (t.n / tot[0].n * 100) + '%', opacity: 1 - $index * 0.17 }"></span>
-                        </div>
-                        <ul class="oasis-kpi__legend">
-                            <li ng-repeat="t in types | limitTo:3">
-                                <i ng-style="{ opacity: 1 - $index * 0.17 }"></i>{{ t.type }} <strong>{{ t.n }}</strong>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="oasis-kpi__top">
+                    <span class="oasis-kpi__icon" aria-hidden="true"><i class="fa fa-tree"></i></span>
+                    <span class="oasis-kpi__index" aria-hidden="true">01</span>
                 </div>
+                <p class="oasis-kpi__value">
+                    <span ng-if="tot.length">{{ tot[0].n | number }}</span>
+                    <span ng-if="!tot.length" class="oasis-kpi__skeleton"></span>
+                </p>
+                <p class="oasis-kpi__label">cours transformées en oasis</p>
+                <p class="oasis-kpi__sub">
+                    <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                    <span ng-if="years.length">depuis <strong>{{ years[0].y }}</strong></span>
+                </p>
             </li>
 
             <%# KPI 2 : cours réalisées l'année la plus récente, comparées à l'année précédente %>
@@ -105,19 +79,6 @@
                     </span>
                     contre <strong>{{ years[years.length - 2].n }}</strong> en {{ years[years.length - 2].y }}
                 </p>
-
-                <div class="oasis-kpi__viz" ng-if="years.length">
-                    <ol class="oasis-kpi__bars" role="img"
-                        aria-label="Cours Oasis réalisées par année, de {{ years[0].y }} à {{ years[years.length - 1].y }}">
-                        <li ng-repeat="r in years"
-                            ng-class="{ 'is-current': $last }"
-                            title="{{ r.y }} : {{ r.n }}">
-                            <span class="oasis-kpi__bar"
-                                  ng-style="{ height: (r.n / (years | orderBy:'-n')[0].n * 100) + '%' }"></span>
-                            <span class="oasis-kpi__year">{{ ('' + r.y) | limitTo:-2 }}</span>
-                        </li>
-                    </ol>
-                </div>
             </li>
 
             <%# KPI 3 : arrondissements couverts sur 20, et celui qui en compte le plus %>
@@ -142,19 +103,6 @@
                     le <strong>{{ (arrs[0].arrdt | limitTo:-2) * 1 }}<sup>{{ (arrs[0].arrdt | limitTo:-2) * 1 === 1 ? 'er' : 'e' }}</sup></strong>
                     en compte le plus&nbsp;: <strong>{{ arrs[0].n }}</strong>
                 </p>
-
-                <div class="oasis-kpi__viz" ng-if="arrs.length">
-                    <ol class="oasis-kpi__arrdts" role="img"
-                        aria-label="Nombre de cours Oasis par arrondissement">
-                        <% ARRDTS.forEach(function (a) { %>
-                        <li ng-class="{ 'is-empty': !(arrs | filter:{arrdt: '<%= a.code %>'}:true)[0],
-                                        'is-dark': <%- share(a.code) %> > 0.55,
-                                        'is-top': arrs[0].arrdt === '<%= a.code %>' }"
-                            ng-style="{ backgroundColor: 'rgba(37, 125, 27, ' + (0.12 + 0.88 * <%- share(a.code) %>) + ')' }"
-                            title="<%= a.n %><%= a.n === 1 ? 'er' : 'e' %> : {{ (arrs | filter:{arrdt: '<%= a.code %>'}:true)[0].n || 0 }}"><%= a.n %></li>
-                        <% }); %>
-                    </ol>
-                </div>
             </li>
         </ol>
 

@@ -93,8 +93,6 @@ $font:   "Montserrat", Helvetica, Arial, sans-serif;
             box-shadow: 8px 8px 0 var(--accent);
         }
 
-        // Carte 1 : le résultat de `types` enveloppe tout le contenu
-        .oasis-kpi__body { display: flex; flex-direction: column; flex: 1; }
 
         &--blue  { --accent: #{$blue}; }
         &--red   { --accent: #{$red};   animation-delay: 0.08s; }
@@ -155,17 +153,18 @@ $font:   "Montserrat", Helvetica, Arial, sans-serif;
     }
 
     &__label {
-        margin: 0.75rem 0 0;
+        margin: 0.75rem 0 1.25rem;
         font-size: 1.0625rem;
         font-weight: 700;
     }
 
+    // Poussée en bas de carte : les séparateurs restent alignés d'une carte à l'autre
     &__sub {
-        margin: 1.25rem 0 0;
+        margin: auto 0 0;
         padding-top: 1rem;
         border-top: 1px solid $border;
         font-size: 0.875rem;
-        line-height: 1.5;
+        line-height: 1.75rem; // hauteur du badge de la carte 02 : les filets restent alignés
 
         > .fa { color: var(--accent); margin-right: 0.35rem; }
         sup { font-size: 0.65em; }
@@ -176,105 +175,14 @@ $font:   "Montserrat", Helvetica, Arial, sans-serif;
         align-items: center;
         gap: 0.3rem;
         margin-right: 0.35rem;
-        padding: 0.15rem 0.5rem;
+        padding: 0.25rem 0.5rem;
+        line-height: 1.25rem;
+        vertical-align: middle;
         background: $red;
         color: #fff;
         font-weight: 700;
 
         &--down { background: $navy; }
-    }
-
-    // Mini-visualisations, en bas de chaque carte
-    &__viz {
-        margin-top: auto;
-        padding-top: 1.5rem;
-    }
-
-    // KPI 1 : répartition par type d'établissement
-    &__split {
-        display: flex;
-        height: 0.75rem;
-        gap: 2px;
-
-        span { display: block; background: $blue; min-width: 3px; }
-    }
-
-    &__legend {
-        list-style: none;
-        margin: 0.75rem 0 0;
-        padding: 0;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.25rem 1rem;
-        font-size: 0.75rem;
-
-        i {
-            display: inline-block;
-            width: 0.625rem;
-            height: 0.625rem;
-            margin-right: 0.35rem;
-            background: $blue;
-        }
-    }
-
-    // KPI 2 : réalisations par année
-    &__bars {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        align-items: flex-end;
-        gap: 4px;
-        height: 5rem;
-
-        li {
-            flex: 1;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-        }
-
-        .is-current .oasis-kpi__bar { background: $red; }
-        .is-current .oasis-kpi__year { color: $red; font-weight: 700; }
-    }
-
-    &__bar {
-        display: block;
-        width: 100%;
-        min-height: 3px;
-        background: rgba($red, 0.22);
-    }
-
-    &__year {
-        margin-top: 0.3rem;
-        font-size: 0.6875rem;
-        line-height: 1;
-    }
-
-    // KPI 3 : les 20 arrondissements
-    &__arrdts {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: grid;
-        grid-template-columns: repeat(10, 1fr);
-        gap: 3px;
-
-        li {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.6875rem;
-            font-weight: 700;
-            color: $navy;
-        }
-
-        .is-dark { color: #fff; }
-        .is-empty { background: transparent !important; outline: 1px dashed $border; outline-offset: -1px; }
-        .is-top { outline: 2px solid $navy; outline-offset: -2px; }
     }
 
     &__footer {
@@ -310,7 +218,6 @@ $font:   "Montserrat", Helvetica, Arial, sans-serif;
         &__top { margin-bottom: 1rem; }
         &__index { font-size: 2.5rem; }
         &__value { font-size: 3.5rem; min-height: 3.5rem; }
-        &__arrdts li { font-size: 0.625rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {

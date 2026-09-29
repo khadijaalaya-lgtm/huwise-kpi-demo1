@@ -85,11 +85,6 @@
   transform: translate(-4px, -4px);
   box-shadow: 8px 8px 0 var(--accent);
 }
-.oasis-kpi__card .oasis-kpi__body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
 .oasis-kpi__card--blue {
   --accent: #354BCF;
 }
@@ -148,16 +143,16 @@
   animation: oasis-kpi-shimmer 1.2s linear infinite;
 }
 .oasis-kpi__label {
-  margin: 0.75rem 0 0;
+  margin: 0.75rem 0 1.25rem;
   font-size: 1.0625rem;
   font-weight: 700;
 }
 .oasis-kpi__sub {
-  margin: 1.25rem 0 0;
+  margin: auto 0 0;
   padding-top: 1rem;
   border-top: 1px solid #C5C5C5;
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.75rem;
 }
 .oasis-kpi__sub > .fa {
   color: var(--accent);
@@ -171,107 +166,15 @@
   align-items: center;
   gap: 0.3rem;
   margin-right: 0.35rem;
-  padding: 0.15rem 0.5rem;
+  padding: 0.25rem 0.5rem;
+  line-height: 1.25rem;
+  vertical-align: middle;
   background: #E22C3F;
   color: #fff;
   font-weight: 700;
 }
 .oasis-kpi__delta--down {
   background: #071F32;
-}
-.oasis-kpi__viz {
-  margin-top: auto;
-  padding-top: 1.5rem;
-}
-.oasis-kpi__split {
-  display: flex;
-  height: 0.75rem;
-  gap: 2px;
-}
-.oasis-kpi__split span {
-  display: block;
-  background: #354BCF;
-  min-width: 3px;
-}
-.oasis-kpi__legend {
-  list-style: none;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  font-size: 0.75rem;
-}
-.oasis-kpi__legend i {
-  display: inline-block;
-  width: 0.625rem;
-  height: 0.625rem;
-  margin-right: 0.35rem;
-  background: #354BCF;
-}
-.oasis-kpi__bars {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 5rem;
-}
-.oasis-kpi__bars li {
-  flex: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-}
-.oasis-kpi__bars .is-current .oasis-kpi__bar {
-  background: #E22C3F;
-}
-.oasis-kpi__bars .is-current .oasis-kpi__year {
-  color: #E22C3F;
-  font-weight: 700;
-}
-.oasis-kpi__bar {
-  display: block;
-  width: 100%;
-  min-height: 3px;
-  background: rgba(226, 44, 63, 0.22);
-}
-.oasis-kpi__year {
-  margin-top: 0.3rem;
-  font-size: 0.6875rem;
-  line-height: 1;
-}
-.oasis-kpi__arrdts {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 3px;
-}
-.oasis-kpi__arrdts li {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  color: #071F32;
-}
-.oasis-kpi__arrdts .is-dark {
-  color: #fff;
-}
-.oasis-kpi__arrdts .is-empty {
-  background: transparent !important;
-  outline: 1px dashed #C5C5C5;
-  outline-offset: -1px;
-}
-.oasis-kpi__arrdts .is-top {
-  outline: 2px solid #071F32;
-  outline-offset: -2px;
 }
 .oasis-kpi__footer {
   display: flex;
@@ -314,9 +217,6 @@
   .oasis-kpi__value {
     font-size: 3.5rem;
     min-height: 3.5rem;
-  }
-  .oasis-kpi__arrdts li {
-    font-size: 0.625rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
