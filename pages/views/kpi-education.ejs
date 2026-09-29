@@ -1,0 +1,172 @@
+<!--
+    Bloc KPI personnalisé — « L'école élémentaire à Paris en chiffres »
+    Source : Ville de Paris / DASCO — jeu de données « Etablissements scolaires – Ecoles élémentaires »
+    https://parisdata.huwise.com/explore/dataset/etablissements-scolaires-ecoles-elementaires/
+
+    Deux analyses (API records/analyze) alimentent les 3 cartes :
+      - years  : nombre d'écoles par année scolaire (annee_scol)
+      - detail : nombre d'écoles par année scolaire × arrondissement (annee_scol, arr_libelle)
+    Tous les calculs (année la plus récente, évolution, maximum, moyenne, écart) sont faits
+    côté page en expressions AngularJS : aucune donnée n'est codée en dur.
+-->
+<ods-dataset-context context="edu"
+                     edu-dataset="etablissements-scolaires-ecoles-elementaires"
+                     edu-domain="https://parisdata.huwise.com">
+
+    <section class="kpi-edu"
+             aria-labelledby="kpi-edu-title"
+             ods-analysis="years"
+             ods-analysis-context="edu"
+             ods-analysis-x="annee_scol"
+             ods-analysis-serie-n="COUNT()">
+
+        <div ods-analysis="detail"
+             ods-analysis-context="edu"
+             ods-analysis-x-year="annee_scol"
+             ods-analysis-x-arr="arr_libelle"
+             ods-analysis-serie-n="COUNT()">
+
+            <header class="kpi-edu__header">
+                <p class="kpi-edu__eyebrow">Éducation · Ville de Paris</p>
+                <h2 id="kpi-edu-title" class="kpi-edu__title">L'école élémentaire à Paris en chiffres</h2>
+                <p class="kpi-edu__intro">
+                    Trois repères pour comprendre le maillage des écoles élémentaires publiques
+                    sur le territoire parisien.
+                </p>
+            </header>
+
+            <!-- État de chargement : squelettes -->
+            <div class="kpi-edu__grid" ng-if="!(years.results.length && detail.results.length)" aria-busy="true">
+                <div class="kpi-card kpi-card--skeleton" ng-repeat="i in [1, 2, 3]">
+                    <span class="kpi-skel kpi-skel--icon"></span>
+                    <span class="kpi-skel kpi-skel--label"></span>
+                    <span class="kpi-skel kpi-skel--value"></span>
+                    <span class="kpi-skel kpi-skel--text"></span>
+                </div>
+            </div>
+
+            <!-- Cartes KPI -->
+            <div class="kpi-edu__grid"
+                 ng-if="years.results.length && detail.results.length"
+                 ng-init="
+                    yrs = (years.results | orderBy:'-x');
+                    cur = yrs[0];
+                    prev = yrs[1];
+                    delta = prev ? cur.n - prev.n : null;
+                    arrs = (detail.results | filter:{x:{annee_scol: cur.x}}:true | orderBy:'-n');
+                    top = arrs[0];
+                    low = arrs[arrs.length - 1];
+                    avg = cur.n / arrs.length;
+                    spread = top.n - low.n;
+                    avgPos = spread ? (avg - low.n) / spread * 100 : 50;
+                    maxYear = (years.results | orderBy:'-n')[0].n;
+                 ">
+
+                <!-- KPI 1 — Volume total (carte « héros ») -->
+                <article class="kpi-card kpi-card--hero" aria-labelledby="kpi1-label">
+                    <div class="kpi-card__top">
+                        <span class="kpi-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/><path d="M12 5V2.5h3"/>
+                            </svg>
+                        </span>
+                        <span class="kpi-card__badge">{{ cur.x }}</span>
+                    </div>
+                    <h3 id="kpi1-label" class="kpi-card__label">Écoles élémentaires publiques</h3>
+                    <p class="kpi-card__value">{{ cur.n | number:0 }}</p>
+                    <p class="kpi-card__context">
+                        <span ng-if="delta !== null"
+                              class="kpi-delta"
+                              ng-class="{'kpi-delta--up': delta > 0, 'kpi-delta--down': delta < 0}">
+                            <span aria-hidden="true">{{ delta > 0 ? '▲' : (delta < 0 ? '▼' : '■') }}</span>
+                            {{ delta > 0 ? '+' : '' }}{{ delta | number:0 }} vs {{ prev.x }}
+                        </span>
+                        <span ng-if="delta === null">réparties sur {{ arrs.length }} arrondissements</span>
+                    </p>
+
+                    <!-- Mini-historique par année scolaire (si plusieurs millésimes) -->
+                    <div class="kpi-spark" ng-if="years.results.length > 1" role="img"
+                         aria-label="Évolution du nombre d'écoles par année scolaire">
+                        <div class="kpi-spark__item" ng-repeat="y in years.results | orderBy:'x' | limitTo:-6">
+                            <span class="kpi-spark__bar"
+                                  ng-class="{'is-current': y.x === cur.x}"
+                                  ng-style="{'height': (30 + 70 * y.n / maxYear) + '%'}"
+                                  tabindex="0"
+                                  data-tip="{{ y.n | number:0 }} écoles"></span>
+                            <span class="kpi-spark__label">{{ y.x }}</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- KPI 2 — Arrondissement le plus doté -->
+                <article class="kpi-card" aria-labelledby="kpi2-label">
+                    <div class="kpi-card__top">
+                        <span class="kpi-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>
+                            </svg>
+                        </span>
+                        <span class="kpi-card__badge kpi-card__badge--soft">N°1</span>
+                    </div>
+                    <h3 id="kpi2-label" class="kpi-card__label">Arrondissement le plus doté</h3>
+                    <p class="kpi-card__value">
+                        {{ top.n | number:0 }}<span class="kpi-card__unit">écoles</span>
+                    </p>
+                    <p class="kpi-card__context">
+                        <strong>{{ top.x.arr_libelle }}</strong>, soit
+                        <strong>{{ top.n / cur.n * 100 | number:1 }} %</strong> des écoles parisiennes
+                    </p>
+
+                    <!-- Classement des arrondissements -->
+                    <div class="kpi-bars" role="img"
+                         aria-label="Nombre d'écoles par arrondissement, du plus doté au moins doté">
+                        <span class="kpi-bars__bar"
+                              ng-repeat="a in arrs"
+                              ng-class="{'is-top': $first}"
+                              ng-style="{'height': (a.n / top.n * 100) + '%'}"
+                              tabindex="0"
+                              data-tip="{{ a.x.arr_libelle }} : {{ a.n | number:0 }}"></span>
+                    </div>
+                </article>
+
+                <!-- KPI 3 — Moyenne et écart entre arrondissements -->
+                <article class="kpi-card" aria-labelledby="kpi3-label">
+                    <div class="kpi-card__top">
+                        <span class="kpi-card__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 3v18"/><path d="M5 21h14"/><path d="M4 7h16"/><path d="M4 7l-2.5 6a3 3 0 0 0 5 0z"/><path d="M20 7l-2.5 6a3 3 0 0 0 5 0z"/>
+                            </svg>
+                        </span>
+                        <span class="kpi-card__badge kpi-card__badge--soft" ng-if="low.n">×{{ top.n / low.n | number:1 }} d'écart</span>
+                    </div>
+                    <h3 id="kpi3-label" class="kpi-card__label">Écoles par arrondissement</h3>
+                    <p class="kpi-card__value">
+                        {{ avg | number:1 }}<span class="kpi-card__unit">en moyenne</span>
+                    </p>
+                    <p class="kpi-card__context">
+                        De {{ low.n | number:0 }} à {{ top.n | number:0 }} écoles selon l'arrondissement
+                    </p>
+
+                    <!-- Jauge min · moyenne · max -->
+                    <div class="kpi-range" role="img"
+                         aria-label="Minimum {{ low.n }}, moyenne {{ avg | number:1 }}, maximum {{ top.n }}">
+                        <div class="kpi-range__track">
+                            <span class="kpi-range__fill" ng-style="{'width': avgPos + '%'}"></span>
+                            <span class="kpi-range__marker" ng-style="{'left': avgPos + '%'}"></span>
+                        </div>
+                        <div class="kpi-range__labels">
+                            <span><strong>{{ low.n | number:0 }}</strong> {{ low.x.arr_libelle }}</span>
+                            <span class="kpi-range__max"><strong>{{ top.n | number:0 }}</strong> {{ top.x.arr_libelle }}</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <footer class="kpi-edu__source">
+                Source :
+                <a href="https://parisdata.huwise.com/explore/dataset/etablissements-scolaires-ecoles-elementaires/"
+                   target="_blank" rel="noopener">Ville de Paris — Direction des Affaires Scolaires (DASCO), « Etablissements scolaires – Ecoles élémentaires »</a>
+            </footer>
+        </div>
+    </section>
+</ods-dataset-context>
